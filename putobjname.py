@@ -1,25 +1,25 @@
 #!/usr/bin/python
 # _*_ coding: utf-8 _*_
 
-import urllib2
-import ast
+import boto
+from boto.sts import STSConnection
 from boto.s3.connection import S3Connection
 
 bucket_name = 's3metasearch'
 role_name = 's3metasearchRole'
-url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/' + role_name
 
-resp=urllib2.urlopen(url).read()
-print resp
-resp=ast.literal_eval(resp)
-print resp['AccessKeyId']
-print resp['SecretAccessKey']
-conn = S3Connection(resp['AccessKeyId'],resp['SecretAccessKey'])
-bucket = conn.get_bucket(bucket_name)
+sts_connection = STSConnection()
+assumedRoleObject = sts_connection.assume_role(
+    role_arn="arn:aws:iam::640175474045:role/s3metasearchRole",
+    role_session_name="AssumeRoleSession1"
+)
 
-for obj in bucket.list():
-    print obj.name.encode('utf-8')
-
-
-
+s3_connection = S3Connection(
+    aws_access_key_id=assumedRoleObject.credentials.access_key,
+    aws_secret_access_key=assumedRoleObject.credentials.secret_key,
+    security_token=assumedRoleObject.credentials.session_token
+)
+bucketList = s3_connection.get_all_buckets()
+for bucket in bucketList:
+	print bucket.name
 
