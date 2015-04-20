@@ -14,12 +14,12 @@ assumedRoleObject = sts_connection.assume_role(
     role_session_name="AssumeRoleSession1"
 )
 
-s3_connection = S3Connection(
+conn = S3Connection(
     aws_access_key_id=assumedRoleObject.credentials.access_key,
     aws_secret_access_key=assumedRoleObject.credentials.secret_key,
     security_token=assumedRoleObject.credentials.session_token
 )
-bucketList = s3_connection.get_all_buckets()
-for bucket in bucketList:
-	print bucket.name
+bucket = conn.get_bucket(bucket_name)
+for obj in bucket:
+	print obj.name
 
