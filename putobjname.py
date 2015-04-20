@@ -12,6 +12,8 @@ url = 'http://169.254.169.254/latest/meta-data/iam/security-credentials/' + role
 resp=urllib2.urlopen(url).read()
 print resp
 resp=ast.literal_eval(resp)
+print resp['AccessKeyId']
+print resp['SecretAccessKey']
 conn = S3Connection(resp['AccessKeyId'],resp['SecretAccessKey'])
 bucket = conn.get_bucket(bucket_name)
 
